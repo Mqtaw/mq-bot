@@ -1,0 +1,1 @@
+from mqbot.telegram import bot

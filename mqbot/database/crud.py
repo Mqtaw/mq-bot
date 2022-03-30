@@ -6,11 +6,12 @@ import re
 from . import models, schemas
 
 
-def create_user(db: Session, tg_id: int) -> schemas.User:
+def create_user(db: Session, tg_id: int, username: str) -> schemas.User:
     db_shopping_list = models.ShoppingList(products='')
     db.add(db_shopping_list)
     db.flush()
-    db_user = models.User(tg_id=tg_id, current_shopping_list_id=db_shopping_list.id)
+    db_user = models.User(tg_id=tg_id, current_shopping_list_id=db_shopping_list.id,
+                          username=username)
     db.add(db_user)
     db_user_shopping_list = models.UserShoppingList(
         user_id=tg_id, shopping_list_id=db_shopping_list.id,
@@ -87,11 +88,31 @@ def get_shopping_list(db: Session, user_id: int, shopping_list_id: int) \
     return shopping_list
 
 
+def get_shopping_list_attached_users(db: Session, shopping_list_id: int) \
+        -> [models.UserShoppingList, None]:
+    try:
+        shopping_list_additional_users = db.query(models.UserShoppingList).filter(
+            models.UserShoppingList.shopping_list_id ==
+            shopping_list_id, models.UserShoppingList.owner == False).all()
+    except NoResultFound:
+        return None
+    return shopping_list_additional_users
+
+
 def join_user_to_shopping_list(db: Session, user_id: int, shopping_list_id: int, name: str):
     db_user_shopping_list = models.UserShoppingList(
         user_id=user_id, shopping_list_id=shopping_list_id,
         shopping_list_name=name, owner=False)
     db.add(db_user_shopping_list)
+    db.commit()
+    return True
+
+
+def detach_user_from_shopping_list(db: Session, shopping_list_id: int, detach_user_id: id):
+    user_shopping_list = db.query(models.UserShoppingList).filter(
+        models.UserShoppingList.shopping_list_id ==
+        shopping_list_id, models.UserShoppingList.user_id == detach_user_id).one()
+    db.delete(user_shopping_list)
     db.commit()
     return True
 
@@ -113,46 +134,3 @@ def update_products(db: Session, shopping_list: models.ShoppingList, item: str):
     db.commit()
     return status
 
-
-
-
-# def create_shopping_list(db: Session, owner_id: int, name: str,
-#                          products: str = '', owner: bool = False):
-#     db_shopping_list = models.ShoppingList(products=products)
-#     db.add(db_shopping_list)
-#     db.flush()
-#     db_user_shopping_list = models.UserShoppingList(
-#         user_id=owner_id, shopping_list_id=db_shopping_list.id,
-#         shopping_list_name=name, owner=owner)
-#     db.add(db_user_shopping_list)
-#     db.commit()
-#
-#     return db_shopping_list
-
-
-
-
-# def get_channels(db: Session):
-#     return db.query(models.PagerChannel).all()
-#
-#
-# def delete_channel(channel_id: int, db: Session):
-#     db.query(models.PagerChannel).filter(models.PagerChannel.id == channel_id).delete(synchronize_session=False)
-#     db.commit()
-#     return 'Successfully deleted'
-#
-#
-# def create_channel(channel: schemas.PagerChannelCreate, db: Session):
-#     db_channel = models.PagerChannel(**channel.dict())
-#     db.add(db_channel)
-#     db.commit()
-#     db.refresh(db_channel)
-#     return db_channel
-#
-#
-# def update_channel_for_product(product: str, channel: str, db: Session):
-#     db_channel = db.query(models.PagerChannel).filter().filter(models.PagerChannel.product == product).one()
-#     db_channel.channel = channel
-#     db.add(db_channel)
-#     db.commit()
-#     return db_channel

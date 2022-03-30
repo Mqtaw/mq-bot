@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 class User(BaseModel):
     tg_id: int
+    username: str
     current_shopping_list_id: int
     shopping_lists: list
 

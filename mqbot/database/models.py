@@ -16,11 +16,11 @@ class UserShoppingList(Base):
     shopping_list = relationship("ShoppingList", back_populates="users")
 
     def __repr__(self):
-        return f'<UserShoppingList user_id: {self.user_id}, ' \
+        return f'user_id: {self.user_id}, ' \
+               f'username: {self.user.username}, ' \
                f'Shopping_list_id: {self.shopping_list_id}, ' \
                f'shopping_list_name: {self.shopping_list_name}, ' \
                f'is_user_owner: {self.owner}>'
-
 
 
 
@@ -28,12 +28,14 @@ class User(Base):
     __tablename__ = 'users'
 
     tg_id = Column(Integer, primary_key=True)
+    username = Column(String(50))
     current_shopping_list_id = Column(Integer)
 
     shopping_lists = relationship("UserShoppingList", back_populates="user")
 
     def __repr__(self):
         return f'<User tg_id: {self.tg_id},' \
+               f'username: {self.username},' \
                f' current_shopping_list_id: ' \
                f'{self.current_shopping_list_id}>'
 
