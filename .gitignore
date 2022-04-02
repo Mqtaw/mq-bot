@@ -1,0 +1,9 @@
+.env
+app.db
+.venv
+/alembic/__pycache__
+/config/__pycache__
+/alembic/versions/__pycache__
+/mqbot/__pycache__
+/mqbot/telegram/__pycache__
+/mqbot/database/__pycache__
