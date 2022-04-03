@@ -360,7 +360,6 @@ def choose_list_callback_handler(query):
 
     msg = f'Выбран список покупок: {shopping_list.shopping_list_name}'
     bot.send_message(query.message.chat.id, text=msg)
-    show_current_list_handler(query.message)
 
 
 @bot.callback_query_handler(
