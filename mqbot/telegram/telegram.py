@@ -1,6 +1,7 @@
 from collections import namedtuple
 import re
 
+from loguru import logger
 import telebot
 
 from config.config import Config
@@ -34,12 +35,13 @@ class Keyboard(object):
 
 @bot.message_handler(commands=['start'])
 def start_handler(message):
-    db = database.get_db()
     user_id = message.from_user.id
-    user = database.get_user(db=db.__next__(), tg_id=user_id)
     username = message.from_user.username if message.from_user.username else \
         message.from_user.first_name
-    print(username)
+    logger.info(f"start_handler was called. User_id:{user_id}, username:{username}")
+
+    db = database.get_db()
+    user = database.get_user(db=db.__next__(), tg_id=user_id)
     if user:
         msg = 'Для вас бот уже настроен. Воспользутесь ' \
               'командой /help для получения списка команд'
@@ -50,7 +52,11 @@ def start_handler(message):
 
 
 @bot.message_handler(commands=['help'])
-def start_handler(message):
+def help_handler(message):
+    user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"help_handler was called by User_id:{user_id}, username:{username}")
 
     msg = "Бот для управления списками покупок.\n" \
           "Классическое использование - пишем название товара для добавки в текущий список, " \
@@ -68,9 +74,17 @@ def start_handler(message):
 
 @bot.message_handler(commands=['show'])
 def show_current_list_handler(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"show_current_list_handler was called by User_id:{user_id}, username:{username}")
+
+    db = database.get_db()
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
+
     shopping_list = database.get_shopping_list(
         db=db.__next__(), user_id=user_id, shopping_list_id=user.current_shopping_list_id)
 
@@ -92,9 +106,16 @@ def show_current_list_handler(message):
 
 @bot.message_handler(commands=['share'])
 def share_current_list_handler(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"share_current_list_handler was called by User_id:{user_id}, username:{username}")
+
+    db = database.get_db()
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
     shopping_list = database.get_shopping_list(
         db=db.__next__(), user_id=user_id, shopping_list_id=user.current_shopping_list_id)
 
@@ -110,9 +131,16 @@ def share_current_list_handler(message):
 
 @bot.message_handler(commands=['check_users'])
 def check_joints_handler(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"check_joints_handler was called by User_id:{user_id}, username:{username}")
+    
+    db = database.get_db()
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
 
     shopping_list = database.get_shopping_list(
         db=db.__next__(), user_id=user_id, shopping_list_id=user.current_shopping_list_id)
@@ -135,9 +163,16 @@ def check_joints_handler(message):
 
 @bot.message_handler(commands=['detach_user'])
 def check_joints_handler(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"check_joints_handler was called by User_id:{user_id}, username:{username}")
+
+    db = database.get_db()
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
 
     shopping_list = database.get_shopping_list(
         db=db.__next__(), user_id=user_id, shopping_list_id=user.current_shopping_list_id)
@@ -167,9 +202,16 @@ def check_joints_handler(message):
                                           "Укажите id пользователя," in
                                           message.reply_to_message.text)
 def share_current_list_request(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"share_current_list_request was called by User_id:{user_id}, username:{username}")
+
+    db = database.get_db()
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
 
     username = message.from_user.username if message.from_user.username else\
         message.from_user.first_name
@@ -187,8 +229,12 @@ def share_current_list_request(message):
                                           "желает поделиться с вами списком покупок" in
                                           message.reply_to_message.text)
 def share_current_list_response(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"share_current_list_request was called by User_id:{user_id}, username:{username}")
+    
+    db = database.get_db()
     source_user, shopping_list_id = re.findall(r'\d+', message.reply_to_message.text)[-2:]
 
     database.join_user_to_shopping_list(db=db.__next__(), user_id=user_id,
@@ -212,6 +258,11 @@ def add_list_ask_name(message):
                                           "Назовите новый список:" in
                                           message.reply_to_message.text)
 def add_list_create(message):
+    user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"add_list_create was called by User_id:{user_id}, username:{username}")
+
     db = database.get_db()
     shopping_list_name = database.create_shopping_list(db.__next__(),
                                                   user_id=message.from_user.id,
@@ -222,10 +273,17 @@ def add_list_create(message):
 
 @bot.message_handler(commands=['choose', 'delete'])
 def choose_list(message):
+    user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"choose_list was called by User_id:{user_id}, username:{username}")
+    
     command = message.text[1:]
     db = database.get_db()
-    user_id = message.from_user.id
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
 
     keyboard = Keyboard()
     for sl in user.shopping_lists:
@@ -241,15 +299,28 @@ def choose_list(message):
 
 @bot.message_handler(commands=['my_id'])
 def get_id_handler(message):
+    user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"get_id_handler was called by User_id:{user_id}, username:{username}")
+
     bot.send_message(message.chat.id, text='Ваш ID:')
     bot.send_message(message.chat.id, text=f'{message.from_user.id}')
 
 
 @bot.message_handler(func=lambda message: True)
 def add_item(message):
-    db = database.get_db()
     user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"add_item was called by User_id:{user_id}, username:{username}")
+    
+    db = database.get_db()
     user = database.get_user(db=db.__next__(), tg_id=user_id)
+    if not user:
+        bot.send_message(message.chat.id, text=f'Пользователь не инициализирован. Запустите команду /start')
+        return None
+
     shopping_list = database.get_shopping_list(
         db=db.__next__(), user_id=user_id,
         shopping_list_id=user.current_shopping_list_id)
@@ -269,9 +340,13 @@ def add_item(message):
 @bot.callback_query_handler(
     func=lambda call: call.data.startswith('choose'))
 def choose_list_callback_handler(query):
+    user_id = query.message.chat.id
+    username =query.message.from_user.username if query.message.from_user.username else \
+        query.message.from_user.first_name
+    logger.info(f"choose_list_callback_handler was called by User_id:{user_id}, username:{username}")
+
     bot.answer_callback_query(query.id)
     db = database.get_db()
-    user_id = query.message.chat.id
     shopping_list_id = int(query.data.split('&')[1])
     database.change_current_shopping_list(db=db.__next__(), user_id=user_id,
                                           shopping_list_id=shopping_list_id)
@@ -285,10 +360,14 @@ def choose_list_callback_handler(query):
 
 @bot.callback_query_handler(
     func=lambda call: call.data.startswith('delete'))
-def choose_list_callback_handler(query):
+def delete_list_callback_handler(query):
+    user_id = query.message.chat.id
+    username =query.message.from_user.username if query.message.from_user.username else \
+        query.message.from_user.first_name
+    logger.info(f"delete_list_callback_handler was called by User_id:{user_id}, username:{username}")
+
     bot.answer_callback_query(query.id)
     db = database.get_db()
-    user_id = query.message.chat.id
     shopping_list_id = int(query.data.split('&')[1])
     status = database.delete_shopping_list(db=db.__next__(), user_id=user_id,
                                            shopping_list_id=shopping_list_id)
@@ -301,9 +380,13 @@ def choose_list_callback_handler(query):
 @bot.callback_query_handler(
     func=lambda call: call.data.startswith('detach'))
 def detach_user_callback_handler(query):
+    user_id = query.message.chat.id
+    username =query.message.from_user.username if query.message.from_user.username else \
+        query.message.from_user.first_name
+    logger.info(f"detach_user_callback_handler was called by User_id:{user_id}, username:{username}")
+
     bot.answer_callback_query(query.id)
     db = database.get_db()
-    print(query.data.split('&')[1:])
     shopping_list_id, detach_user_id = map(int, query.data.split('&')[1:])
     database.detach_user_from_shopping_list(db=db.__next__(), shopping_list_id=shopping_list_id,
                                            detach_user_id=detach_user_id)
