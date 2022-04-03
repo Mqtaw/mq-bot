@@ -250,6 +250,10 @@ def share_current_list_response(message):
 
 @bot.message_handler(commands=['create'])
 def add_list_ask_name(message):
+    user_id = message.from_user.id
+    username = message.from_user.username if message.from_user.username else \
+        message.from_user.first_name
+    logger.info(f"add_list_ask_name was called by User_id:{user_id}, username:{username}")
     markup = telebot.types.ForceReply(selective=True)
     bot.reply_to(message, text="Назовите новый список:", reply_markup=markup)
 
