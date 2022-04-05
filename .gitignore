@@ -7,3 +7,4 @@ app.db
 /mqbot/__pycache__
 /mqbot/telegram/__pycache__
 /mqbot/database/__pycache__
+111.py
