@@ -11,7 +11,7 @@ db_path = os.path.join(basedir, "app.db")
 class Config(object):
     TELEBOT_TOKEN = os.environ.get('TELEBOT_TOKEN')
     # SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or f'sqlite:////{db_path}'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f'sqlite:////{db_path}'
     # SQLALCHEMY_TRACK_MODIFICATIONS = False
     # MAIL_SERVER = os.environ.get('MAIL_SERVER')
     # MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
