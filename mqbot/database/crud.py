@@ -1,12 +1,13 @@
 from datetime import datetime
+import re
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
-import re
+from typing import Optional
 
 from . import models, schemas
 
 
-def create_user(db: Session, tg_id: int, username: str) -> schemas.User:
+def create_user(db: Session, tg_id: int, username: str) -> models.User:
     db_shopping_list = models.ShoppingList(products='')
     db.add(db_shopping_list)
     db.flush()
@@ -21,7 +22,7 @@ def create_user(db: Session, tg_id: int, username: str) -> schemas.User:
     return db_user
 
 
-def get_user(db: Session, tg_id: int) -> schemas.User:
+def get_user(db: Session, tg_id: int) -> models.User:
     try:
         user = db.query(models.User).filter(models.User.tg_id == tg_id).one()
     except NoResultFound:
@@ -78,7 +79,7 @@ def create_shopping_list(db: Session, user_id: int, name: str) -> str:
 
 
 def get_shopping_list(db: Session, user_id: int, shopping_list_id: int) \
-        -> [models.UserShoppingList, None]:
+        -> Optional[models.UserShoppingList]:
     try:
         shopping_list = db.query(models.UserShoppingList).filter(
             models.UserShoppingList.shopping_list_id ==
@@ -89,7 +90,7 @@ def get_shopping_list(db: Session, user_id: int, shopping_list_id: int) \
 
 
 def get_shopping_list_attached_users(db: Session, shopping_list_id: int) \
-        -> [models.UserShoppingList, None]:
+        -> Optional[models.UserShoppingList]:
     try:
         shopping_list_additional_users = db.query(models.UserShoppingList).filter(
             models.UserShoppingList.shopping_list_id ==
@@ -133,4 +134,3 @@ def update_products(db: Session, shopping_list: models.ShoppingList, item: str):
     db.add(shopping_list)
     db.commit()
     return status
-
